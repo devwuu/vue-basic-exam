@@ -1,92 +1,106 @@
 <template>
   <div>
-    <input @input="newTodo = $event.target.value" :value="newTodo">
+    <input @input="newTodo = $event.target.value" :value="newTodo" />
     <button @click="add">추가</button>
-    <br><br>
-    <div v-for="(todo, idx) in todos" :key="idx">
-      <input type="checkbox" v-model="chkList" :value="idx">
-      :: {{todo.item}} ::
-      <button @click="modify(idx)">수정</button>
-      <button @click="drop(idx)">삭제</button>
-    </div>
-    <br>
+    <br /><br />
+
+    <todo-item
+      v-for="(todo, idx) in todos"
+      :key="idx"
+      :todo="todo"
+      @checked="checked"
+      @modifyItem="modify"
+      @dropItem="drop"
+    ></todo-item>
+
+    <br />
     <button @click="chkDelete">선택삭제</button>
-    <br><br>
+    <br /><br />
     <div v-if="isModifyMod">
-      <input @input="modifyTargetItem.item = $event.target.value" :value="modifyTargetItem.item"> <button @click="modifyConfirm(modifyTargetItem.id)">확인</button>
+      <input
+        @input="modifyTargetItem.item = $event.target.value"
+        :value="modifyTargetItem.item"
+      />
+      <button @click="modifyConfirm(modifyTargetItem.id)">확인</button>
     </div>
   </div>
 </template>
 
 <script>
+import TodoItem from "@/components/TodoItem.vue";
+
 export default {
   name: "ToDoMain",
 
+  components: {
+    TodoItem,
+  },
+
   //data 시작
-  data(){
+  data() {
     return {
       isModifyMod: false,
-      newTodo: '',
+      newTodo: "",
       modifyTargetItem: {},
       chkList: [],
-      todos:[
+      todos: [
         {
           id: 3,
-          item: "vue 공부하기 2"
+          item: "vue 공부하기 2",
         },
         {
           id: 4,
-          item: "vue 공부하기 3"
+          item: "vue 공부하기 3",
         },
         {
           id: 5,
-          item: "vue 공부하기 4"
+          item: "vue 공부하기 4",
         },
         {
           id: 6,
-          item: "vue 공부하기 5"
+          item: "vue 공부하기 5",
         },
-      ]
-    }
+      ],
+    };
   },
   //data 시작
 
   //methods 시작
-  methods:{
-    drop(idx){
-        this.todos.splice(idx,1);
+  methods: {
+    checked(id, check) {
+      check
+        ? this.chkList.push(id)
+        : this.chkList?.splice(this.chkList.indexOf(id), 1);
     },
-    add(){
+    drop(id) {
+      this.todos = this.todos.filter((todo) => todo.id !== parseInt(id));
+    },
+    add() {
       this.todos.push({
-        id: ((this.todos[this.todos.length -1]?.id) + 1) || 1,
-        item: this.newTodo
+        id: this.todos[this.todos.length - 1]?.id + 1 || 1,
+        item: this.newTodo,
       });
     },
-    modify(idx){
+    modify(id) {
+      let todo = this.todos.find((todo) => todo.id === parseInt(id));
       this.modifyTargetItem = {
-        id : this.todos[idx].id,
-        item : this.todos[idx].item
-      }
+        ...todo,
+      };
+
       this.isModifyMod = true;
     },
-    modifyConfirm(id){
-      let find = this.todos.find(todo => todo.id === id);
+    modifyConfirm(id) {
+      let find = this.todos.find((todo) => todo.id === parseInt(id));
       find.item = this.modifyTargetItem.item;
       this.isModifyMod = false;
     },
-    chkDelete(){
-      this.chkList.forEach(idx => this.drop(idx));
+    chkDelete() {
+      this.chkList.forEach((id) => this.drop(id));
       this.chkList = [];
-    }
-  }
+    },
+  },
   //methods 끝
-
-
-
-
-}
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
